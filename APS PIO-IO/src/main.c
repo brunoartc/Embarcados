@@ -3,6 +3,7 @@
 #include "gfx_mono_ug_2832hsweg04.h"
 #include "gfx_mono_text.h"
 #include "sysfont.h"
+#include "musicas.h"
 
 //perifericos
 
@@ -59,133 +60,15 @@
 #define EBUT3_PIO_IDX_MASK (1u << EBUT3_PIO_IDX)
 
 
-#define NOTE_C4  262   //Defining note frequency
-#define NOTE_D4  294
-#define NOTE_E4  330
-#define NOTE_F4  349
-#define NOTE_G4  392
-#define NOTE_A4  440
-#define NOTE_B4  494
-#define NOTE_C5  523
-#define NOTE_D5  587
-#define NOTE_E5  659
-#define NOTE_F5  698
-#define NOTE_G5  784
-#define NOTE_A5  880
-#define NOTE_B5 988
-#define c  261
-#define d  294
-#define e  329
-#define f  349
-#define g  391
-#define gS  415
-#define a  440
-#define aS  455
-#define b  466
-#define cH  523
-#define cSH  554
-#define dH  587
-#define dSH  622
-#define eH  659
-#define fH  698
-#define fSH  740
-#define gH  784
-#define gSH  830
-#define aH  880
-#define NOTE_B0  31
-#define NOTE_C1  33
-#define NOTE_CS1 35
-#define NOTE_D1  37
-#define NOTE_DS1 39
-#define NOTE_E1  41
-#define NOTE_F1  44
-#define NOTE_FS1 46
-#define NOTE_G1  49
-#define NOTE_GS1 52
-#define NOTE_A1  55
-#define NOTE_AS1 58
-#define NOTE_B1  62
-#define NOTE_C2  65
-#define NOTE_CS2 69
-#define NOTE_D2  73
-#define NOTE_DS2 78
-#define NOTE_E2  82
-#define NOTE_F2  87
-#define NOTE_FS2 93
-#define NOTE_G2  98
-#define NOTE_GS2 104
-#define NOTE_A2  110
-#define NOTE_AS2 117
-#define NOTE_B2  123
-#define NOTE_C3  131
-#define NOTE_CS3 139
-#define NOTE_D3  147
-#define NOTE_DS3 156
-#define NOTE_E3  165
-#define NOTE_F3  175
-#define NOTE_FS3 185
-#define NOTE_G3  196
-#define NOTE_GS3 208
-#define NOTE_A3  220
-#define NOTE_AS3 233
-#define NOTE_B3  247
-#define NOTE_C4  262
-#define NOTE_CS4 277
-#define NOTE_D4  294
-#define NOTE_DS4 311
-#define NOTE_E4  330
-#define NOTE_F4  349
-#define NOTE_FS4 370
-#define NOTE_G4  392
-#define NOTE_GS4 415
-#define NOTE_A4  440
-#define NOTE_AS4 466
-#define NOTE_B4  494
-#define NOTE_C5  523
-#define NOTE_CS5 554
-#define NOTE_D5  587
-#define NOTE_DS5 622
-#define NOTE_E5  659
-#define NOTE_F5  698
-#define NOTE_FS5 740
-#define NOTE_G5  784
-#define NOTE_GS5 831
-#define NOTE_A5  880
-#define NOTE_AS5 932
-#define NOTE_B5  988
-#define NOTE_C6  1047
-#define NOTE_CS6 1109
-#define NOTE_D6  1175
-#define NOTE_DS6 1245
-#define NOTE_E6  1319
-#define NOTE_F6  1397
-#define NOTE_FS6 1480
-#define NOTE_G6  1568
-#define NOTE_GS6 1661
-#define NOTE_A6  1760
-#define NOTE_AS6 1865
-#define NOTE_B6  1976
-#define NOTE_C7  2093
-#define NOTE_CS7 2217
-#define NOTE_D7  2349
-#define NOTE_DS7 2489
-#define NOTE_E7  2637
-#define NOTE_F7  2794
-#define NOTE_FS7 2960
-#define NOTE_G7  3136
-#define NOTE_GS7 3322
-#define NOTE_A7  3520
-#define NOTE_AS7 3729
-#define NOTE_B7  3951
-#define NOTE_C8  4186
-#define NOTE_CS8 4435
-#define NOTE_D8  4699
-#define NOTE_DS8 4978
+#define TRESQUARTOSTEMPO 0.75
+#define TEMPOCOMPLETO 1
+#define MEADETEMPO 0.5
+
+
+
 
 
 //musicas
-
-const int songspeed = 1;
 
 //piratas do caribe musica 
 //By Xitang 2016.06.27  @ github
@@ -392,7 +275,6 @@ int underworld_tempo[] = {
 	100, 100, 100,
 	333, 333, 333
 };
-
 //marcha imperial by nicksort @github
 int imperial_march_notes[] = {
 	a,a,a,f,cH,a,f,cH,a,0,eH,eH,eH,fH,cH,gS,f,cH,a,0
@@ -411,25 +293,29 @@ int te1[] = {0, 46, 2, 46, 2, 46, 2, 46, 2, 46, 2, 46, 2, 46, 2, 46, 2, 46, 2, 4
 
 int atual_led = 0;
 
+
+int check_board_button(){ // checa se o bottao da placa foi pressionado 
+	return pio_get(BUT_PIO,PIO_INPUT,BUT_PIO_IDX_MASK);
+}
+
 void bizz(int frequencia, int tempo_ms, int w_led){
-	int us_delay = 1000000/frequencia;
-	int tempo = tempo_ms * 1000;
+	int us_delay = 1000000/frequencia; //quantos microsegundos entre as notas para definir a frequencia
+	int tempo = tempo_ms * 1000; //ms -> us
 	
 	int i = 0;
 	
-	if(w_led) {
-		switch(atual_led) {
+	if(w_led) { //testar se quer o led juntamente com o som
+		switch(atual_led) { //checa o led que esta sendo controlado 
 
 			case 0:
 			pio_clear(ELED2_PIO, ELED2_PIO_IDX_MASK);
-			break; /* optional */
+			break;
 			
 			case 2:
 			pio_clear(ELED1_PIO, ELED1_PIO_IDX_MASK);
-			break; /* optional */
+			break;
 			
-			/* you can have any number of case statements */
-			default : /* Optional */
+			default :
 			pio_clear(ELED3_PIO, ELED3_PIO_IDX_MASK);
 			
 		}
@@ -444,7 +330,7 @@ void bizz(int frequencia, int tempo_ms, int w_led){
 		delay_us(us_delay/2);
 		i++;
 	}
-	if(w_led) {
+	if(w_led) { //"traduz" a musica para os leds
 		switch(atual_led) {
 
 			case 0:
@@ -494,7 +380,7 @@ void sing(int sang[], int sang_tempo[], int n, double velocity) {
 		
 		// stop the tone playing:
 		bizz(0, noteDuration,1);
-		if (!pio_get(BUT_PIO,PIO_INPUT,BUT_PIO_IDX_MASK)) {
+		if (!check_board_button()) {
 			bizz(3000,100,0);
 			break;
 		}
@@ -502,7 +388,7 @@ void sing(int sang[], int sang_tempo[], int n, double velocity) {
 	}
 }
 
-void blink_led(int n,int ms_delay){
+void blink_led(int n,int ms_delay){ //funcao para piscar um numero n x o led da placa
 	for (int j=0; j<=n; j++){
 		pio_clear(PIOC, LED_PIO_IDX_MASK);
 		delay_ms(ms_delay/2);
@@ -514,10 +400,7 @@ void blink_led(int n,int ms_delay){
 }
 
 
-
-
-int main (void)
-{
+void init(){
 	/* Insert system clock initialization code here (sysclk_init()). */
 	
 	sysclk_init();
@@ -581,68 +464,64 @@ int main (void)
 	pmc_enable_periph_clk(ID_SPI0);
 	
 	gfx_mono_ssd1306_init();
-    gfx_mono_draw_string("BRUNOARTC", 10,20, &sysfont);
-	int music=1;
-	
+	gfx_mono_draw_string("BRUNOARTC", 10,20, &sysfont);
+}
 
-	// super loop
-	// aplicacoes embarcadas não devem sair do while(1).
+
+int main (void)
+{
+	init();
+	int music=1;
 	while (1)
 	{
-		
 		if (!pio_get(EBUT2_PIO,PIO_INPUT,EBUT2_PIO_IDX_MASK)) {
 			music++;
 			music %= 5;
 			blink_led(music,200);
 		}
-		
-		if (!pio_get(BUT_PIO,PIO_INPUT,BUT_PIO_IDX_MASK)){
+		if (!check_board_button()){
 			bizz(600,100,0);
-			while (!pio_get(BUT_PIO,PIO_INPUT,BUT_PIO_IDX_MASK)){
+			while (!check_board_button()){ //botao da placa multi-funcao
 				delay_ms(10);
 			}
 			bizz(600,100,0);
 			
 			for (int i=0; i<2000000; i++)
 			{
-				if (!pio_get(BUT_PIO,PIO_INPUT,BUT_PIO_IDX_MASK)) {
+				if (!check_board_button()) {
 					music++;
 					music %= 5;
 					blink_led(music,200);
 					break;
 				}
 			}
-			
 			delay_ms(1000);
-			
-			
-			if (pio_get(BUT_PIO,PIO_INPUT,BUT_PIO_IDX_MASK)){
+			if (check_board_button()){
 				switch(music) {
 
 					case 0:
-					 gfx_mono_draw_string("P CARIBE", 10,20, &sysfont);					
-					sing(pirate_notes,pirate_tempo,sizeof(pirate_notes) / sizeof(int),0.75);
+					gfx_mono_draw_string("P CARIBE", 10,20, &sysfont);					
+					sing(pirate_notes,pirate_tempo,sizeof(pirate_notes) / sizeof(int),TRESQUARTOSTEMPO);
 					break; /* optional */
 					
 					case 2:
 					 gfx_mono_draw_string("S WARS", 10,20, &sysfont);
-					sing(imperial_march_notes,imperial_march_tempo,sizeof(imperial_march_notes) / sizeof(int),0.75);
+					sing(imperial_march_notes,imperial_march_tempo,sizeof(imperial_march_notes) / sizeof(int),TRESQUARTOSTEMPO);
 					break; /* optional */
 					
 					case 3:
 					 gfx_mono_draw_string("MARIO", 10,20, &sysfont);
-					sing(underworld_melody,underworld_tempo,sizeof(underworld_melody) / sizeof(int),1);
+					sing(underworld_melody,underworld_tempo,sizeof(underworld_melody) / sizeof(int),TEMPOCOMPLETO);
 					break;
 					
 					case 4:
 					 gfx_mono_draw_string("TOP GEAR", 10,20, &sysfont);
-					sing(ba1,te1,sizeof(ba1) / sizeof(int),1);
+					sing(ba1,te1,sizeof(ba1) / sizeof(int),TEMPOCOMPLETO);
 					break;
 					
-					/* you can have any number of case statements */
-					default : /* Optional */
+					default :
 					 gfx_mono_draw_string("LIVING T", 10,20, &sysfont);
-					sing(ba,te,sizeof(ba) / sizeof(int),0.5);
+					sing(ba,te,sizeof(ba) / sizeof(int),MEADETEMPO);
 					
 				}
 				delay_ms(1000);
@@ -656,5 +535,4 @@ int main (void)
 		}
 		
 	}
-	/* Insert application code here, after the board has been initialized. */
 }

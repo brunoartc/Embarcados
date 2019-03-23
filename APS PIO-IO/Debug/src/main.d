@@ -165,7 +165,7 @@ src/main.d src/main.o: ../src/main.c ../src/asf.h \
  ../src/gfx_mono_ug_2832hsweg04.h ../src/ssd1306.h \
  ../src/config/conf_board.h ../src/gfx_mono.h ../src/gfx_mono_generic.h \
  ../src/gfx_mono_framebuffer.h ../src/gfx_mono_text.h ../src/sysfont.h \
- ../src/config/conf_sysfont.h
+ ../src/config/conf_sysfont.h ../src/musicas.h
 
 ../src/asf.h:
 
@@ -518,3 +518,5 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\arm\arm-gnu-toolchain\arm-no
 ../src/sysfont.h:
 
 ../src/config/conf_sysfont.h:
+
+../src/musicas.h:
